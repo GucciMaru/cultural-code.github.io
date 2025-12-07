@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Культурный Код - Интерактивный музей с аудиогидом</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #2A5C8A;
+            --primary-light: #3A7CBA;
+            --secondary: #D4A76A;
+            --dark: #1A2B3C;
+            --light: #F5F7FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --museum-bg: #F0F0F0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--secondary);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header & Navigation */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo i {
+            color: var(--secondary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .cta-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 180px 0 100px;
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('https://images.unsplash.com/photo-1518998053901-5348d3961a04?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero-content {
+            max-width: 700px;
+        }
+
+        .hero h1 {
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--gray);
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Конструктор музея */
+        .constructor-section {
+            padding: 100px 0;
+            background-color: white;
+        }
+
+        .constructor-container {
+            display: flex;
+            gap: 30px;
+            min-height: 700px;
+        }
+
+        .constructor-sidebar {
+            width: 300px;
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .constructor-tools {
+            margin-bottom: 20px;
+        }
+
+        .tool-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--primary);
+            background-color: #f0f8ff;
+        }
+
+        .tool-btn.active {
+            border-color: var(--primary);
+            background-color: #e8f4ff;
+        }
+
+        .tool-btn i {
+            color: var(--primary);
+        }
+
+        .exhibit-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            max-height: 300px;
+        }
+
+        .exhibit-item {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+            cursor: move;
+        }
+
+        .exhibit-item h4 {
+            margin-bottom: 5px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .exhibit-item p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .exhibit-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .exhibit-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .constructor-canvas {
+            flex-grow: 1;
+            background-color: var(--museum-bg);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
+                url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1180&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .museum-room {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 200px;
+            min-height: 150px;
+            cursor: move;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .room-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .exhibit-point {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .exhibit-point:hover {
+            transform: scale(1.2);
+            background-color: var(--primary);
+        }
+
+        .exhibit-point i {
+            font-size: 1.2rem;
+        }
+
+        .constructor-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* QR Section */
+        .qr-section {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-code-container {
+            display: inline-block;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            margin: 20px auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #qrcode {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #qrcode canvas {
+            border-radius: 8px;
+        }
+
+        /* Аудиоплеер */
+        .audio-player {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .audio-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .audio-cover {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-btn:hover {
+            background-color: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        .play-btn.playing {
+            background-color: var(--secondary);
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 6px;
+            background-color: #ddd;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background-color: var(--secondary);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .time-display {
+            font-size: 0.9rem;
+            color: var(--gray);
+            min-width: 100px;
+            text-align: right;
+            font-family: monospace;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .volume-slider {
+            flex-grow: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Маршрут для мобильного */
+        .mobile-route {
+            margin-top: 50px;
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .route-step {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .route-step:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-audio {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .step-audio:hover {
+            background-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .step-audio.playing {
+            background-color: #ff6b6b;
+        }
+
+        /* Модальные окна */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background-color: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            padding: 30px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalAppear 0.3s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 992px) {
+            .constructor-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .constructor-sidebar {
+                width: 100%;
+            }
+            
+            .constructor-canvas {
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            nav ul {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .mobile-menu {
+                display: none;
+                position: fixed;
+                top: 80px;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                z-index: 999;
+                padding: 20px;
+            }
+            
+            .mobile-menu.active {
+                display: block;
+            }
+            
+            .mobile-menu ul {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .mobile-menu li {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-landmark"></i>
+                <span>Культурный Код</span>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="#about">О проекте</a></li>
+                    <li><a href="#constructor">Конструктор</a></li>
+                    <li><a href="#qr">QR-доступ</a></li>
+                    <li><a href="#route">Маршрут</a></li>
+                </ul>
+            </nav>
+            
+            <a href="#constructor" class="cta-button">Создать музей</a>
+        </div>
+        
+        <div class="mobile-menu" id="mobileMenu">
+            <ul>
+                <li><a href="#about">О проекте</a></li>
+                <li><a href="#constructor">Конструктор</a></li>
+                <li><a href="#qr">QR-доступ</a></li>
+                <li><a href="#route">Маршрут</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Создайте интерактивный музей с <span class="highlight">аудиогидом и QR - кодом</span></h1>
+                <p>Добавляйте экспонаты, записывайте аудиорассказы и создавайте QR-коды для посетителей. Все в одном конструкторе.</p>
+                <div class="hero-buttons">
+                    <a href="#constructor" class="cta-button">Попробовать сейчас</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Конструктор музея -->
+    <section id="constructor" class="constructor-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Конструктор музея</h2>
+                <p>Создайте план музея и добавьте аудиогиды к экспонатам</p>
+            </div>
+            
+            <div class="constructor-container">
+                <!-- Левая панель инструментов -->
+                <div class="constructor-sidebar">
+                    <div class="constructor-tools">
+                        <h3>Инструменты</h3>
+                        <button class="tool-btn active" id="addRoomBtn">
+                            <i class="fas fa-door-open"></i>
+                            <span>Добавить зал</span>
+                        </button>
+                        <button class="tool-btn" id="addExhibitBtn">
+                            <i class="fas fa-landmark"></i>
+                            <span>Добавить экспонат</span>
+                        </button>
+                        <button class="tool-btn" id="addAudioBtn">
+                            <i class="fas fa-volume-up"></i>
+                            <span>Добавить аудио</span>
+                        </button>
+                    </div>
+                    
+                    <div class="exhibit-list">
+                        <h3>Экспонаты</h3>
+                        <div id="exhibitList">
+                            <!-- Экспонаты будут добавляться сюда -->
+                        </div>
+                    </div>
+                    
+                    <!-- Готовый аудиогид -->
+                    <div class="audio-player" id="defaultAudioGuide">
+                        <h4>Готовый аудиогид</h4>
+                        <div class="audio-info">
+                            <div class="audio-cover">
+                                <i class="fas fa-headphones"></i>
+                            </div>
+                            <div>
+                                <h5>Экскурсия по русскому авангарду</h5>
+                                <p>3 экспоната • 10 минут</p>
+                            </div>
+                        </div>
+                        <div class="audio-controls">
+                            <button class="play-btn" id="playAudioBtn">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <div class="progress-bar" id="progressBar">
+                                <div class="progress" id="progress"></div>
+                            </div>
+                            <div class="time-display" id="timeDisplay">0:00 / 10:00</div>
+                        </div>
+                        <div class="volume-control">
+                            <i class="fas fa-volume-down"></i>
+                            <input type="range" min="0" max="100" value="70" class="volume-slider" id="volumeSlider">
+                            <i class="fas fa-volume-up"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Холст музея -->
+                <div class="constructor-canvas" id="museumCanvas">
+                    <!-- Здесь будут создаваться элементы музея -->
+                </div>
+            </div>
+            
+            <!-- QR-код секция -->
+            <div id="qr" class="qr-section">
+                <h2>QR-код для посетителей</h2>
+                <p>Отсканируйте этот код, чтобы открыть интерактивный маршрут на телефоне</p>
+                
+                <div class="qr-code-container">
+                    <div id="qrcode"></div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <p><strong>Ссылка для доступа:</strong></p>
+                    <div style="display: inline-flex; align-items: center; gap: 10px; background: white; padding: 10px 15px; border-radius: 8px; margin: 10px 0;">
+                        <input type="text" id="museumLink" readonly style="border: none; padding: 5px; font-size: 14px; min-width: 300px; outline: none;">
+                        <button class="cta-button" id="copyLinkBtn" style="padding: 8px 15px; font-size: 14px;">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Мобильный маршрут -->
+            <div id="route" class="mobile-route">
+                <h2>Мобильный маршрут для посетителей</h2>
+                <p>Так ваш маршрут будет выглядеть на телефоне посетителя:</p>
+                
+                <div id="mobileRoutePreview">
+                    <!-- Маршрут будет генерироваться здесь -->
+                </div>
+                
+                <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 10px;">
+                    <h4><i class="fas fa-info-circle"></i> Как использовать:</h4>
+                    <p>1. Отсканируйте QR-код на входе в музей</p>
+                    <p>2. Следуйте по маршруту от экспоната к экспонату</p>
+                    <p>3. Нажимайте на кнопку аудио, чтобы прослушать рассказ</p>
+                    <p>4. Используйте карту для навигации по залам</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Модальное окно добавления экспоната -->
+    <div class="modal-overlay" id="exhibitModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Добавить экспонат</h3>
+                <button class="close-modal" id="closeModalBtn">&times;</button>
+            </div>
+            
+            <form id="exhibitForm">
+                <div class="form-group">
+                    <label for="exhibitName">Название экспоната</label>
+                    <input type="text" id="exhibitName" placeholder="Например: Картина «Утро в сосновом лесу»" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="exhibitDescription">Описание</label>
+                    <textarea id="exhibitDescription" placeholder="Расскажите историю экспоната, интересные факты..." rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="exhibitRoom">Зал</label>
+                    <select id="exhibitRoom">
+                        <option value="Зал 1: История">Зал 1: История</option>
+                        <option value="Зал 2: Искусство">Зал 2: Искусство</option>
+                        <option value="Зал 3: Современность">Зал 3: Современность</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Добавить аудио к этому экспонату</label>
+                    <div style="margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="addAudioNow" checked>
+                            <span>Добавить демо-аудиорассказ</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="cta-button" style="width: 100%; padding: 15px;">
+                        <i class="fas fa-plus"></i> Добавить экспонат
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Данные для демо-экспонатов с аудио
+        const demoExhibits = [
+            {
+                id: 1,
+                name: "Казимир Малевич «Чёрный квадрат»",
+                description: "Самая известная работа русского авангарда. Создана в 1915 году. Символ супрематизма.",
+                room: "Зал 1: История",
+                audio: {
+                    url: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3",
+                    duration: 180,
+                    title: "История «Чёрного квадрата»",
+                    hasAudio: true
+                }
+            },
+            {
+                id: 2,
+                name: "Василий Кандинский «Композиция VII»",
+                description: "Одна из самых сложных и значительных работ художника. Создана в 1913 году.",
+                room: "Зал 1: История",
+                audio: {
+                    url: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3",
+                    duration: 240,
+                    title: "Анализ «Композиции VII»",
+                    hasAudio: true
+                }
+            },
+            {
+                id: 3,
+                name: "Вера Мухина «Рабочий и колхозница»",
+                description: "Символ советской эпохи. Создана для павильона СССР на Всемирной выставке в Париже в 1937 году.",
+                room: "Зал 2: Искусство",
+                audio: {
+                    url: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3",
+                    duration: 210,
+                    title: "Создание знаменитой скульптуры",
+                    hasAudio: true
+                }
+            }
+        ];
+
+        // Текущие данные
+        let exhibits = [...demoExhibits];
+        let nextExhibitId = 4;
+        let currentAudioPlayer = null;
+        let museumUrl = window.location.href.split('#')[0] + '#museum-' + Date.now();
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            initMenu();
+            initConstructor();
+            initAudioPlayer();
+            initModal();
+            generateQRCode();
+            loadDemoExhibits();
+            updateMobileRoutePreview();
+            createDemoMuseum();
+        });
+
+        // Инициализация меню
+        function initMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('active');
+                    mobileMenuBtn.innerHTML = mobileMenu.classList.contains('active') 
+                        ? '<i class="fas fa-times"></i>' 
+                        : '<i class="fas fa-bars"></i>';
+                });
+                
+                // Закрыть меню при клике на ссылку
+                mobileMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.remove('active');
+                        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    });
+                });
+            }
+            
+            // Smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if(targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if(targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Инициализация конструктора
+        function initConstructor() {
+            const addExhibitBtn = document.getElementById('addExhibitBtn');
+            const addRoomBtn = document.getElementById('addRoomBtn');
+            const addAudioBtn = document.getElementById('addAudioBtn');
+            const copyLinkBtn = document.getElementById('copyLinkBtn');
+            
+            // Кнопка добавления экспоната
+            if (addExhibitBtn) {
+                addExhibitBtn.addEventListener('click', openExhibitModal);
+            }
+            
+            // Кнопка добавления зала
+            if (addRoomBtn) {
+                addRoomBtn.addEventListener('click', addNewRoom);
+            }
+            
+            // Кнопка добавления аудио
+            if (addAudioBtn) {
+                addAudioBtn.addEventListener('click', function() {
+                    alert('Выберите экспонат из списка, чтобы добавить к нему аудио');
+                });
+            }
+            
+            // Кнопка копирования ссылки
+            if (copyLinkBtn) {
+                copyLinkBtn.addEventListener('click', function() {
+                    const museumLinkInput = document.getElementById('museumLink');
+                    if (museumLinkInput) {
+                        museumLinkInput.select();
+                        document.execCommand('copy');
+                        alert('Ссылка скопирована в буфер обмена!');
+                    }
+                });
+            }
+            
+            // Обновляем поле со ссылкой
+            const museumLinkInput = document.getElementById('museumLink');
+            if (museumLinkInput) {
+                museumLinkInput.value = museumUrl;
+            }
+        }
+
+        // Инициализация аудиоплеера
+        function initAudioPlayer() {
+            const playBtn = document.getElementById('playAudioBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progress = document.getElementById('progress');
+            const timeDisplay = document.getElementById('timeDisplay');
+            const volumeSlider = document.getElementById('volumeSlider');
+            
+            if (!playBtn || !progressBar) return;
+            
+            let isPlaying = false;
+            let currentTime = 0;
+            const totalTime = 600; // 10 минут в секундах
+            let animationFrame = null;
+            
+            // Функция обновления времени
+            function updateTime() {
+                if (isPlaying && currentTime < totalTime) {
+                    currentTime += 1;
+                    const progressPercent = (currentTime / totalTime) * 100;
+                    if (progress) progress.style.width = `${progressPercent}%`;
+                    
+                    // Форматирование времени
+                    const currentMinutes = Math.floor(currentTime / 60);
+                    const currentSeconds = Math.floor(currentTime % 60);
+                    const totalMinutes = Math.floor(totalTime / 60);
+                    const totalSeconds = Math.floor(totalTime % 60);
+                    
+                    if (timeDisplay) {
+                        timeDisplay.textContent = 
+                            `${currentMinutes}:${currentSeconds.toString().padStart(2, '0')} / ` +
+                            `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
+                    }
+                    
+                    if (currentTime >= totalTime) {
+                        isPlaying = false;
+                        if (playBtn) {
+                            playBtn.classList.remove('playing');
+                            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        }
+                    } else {
+                        animationFrame = setTimeout(updateTime, 1000);
+                    }
+                }
+            }
+            
+            // Кнопка воспроизведения
+            playBtn.addEventListener('click', function() {
+                if (isPlaying) {
+                    isPlaying = false;
+                    playBtn.classList.remove('playing');
+                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    if (animationFrame) {
+                        clearTimeout(animationFrame);
+                    }
+                } else {
+                    isPlaying = true;
+                    playBtn.classList.add('playing');
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    updateTime();
+                }
+            });
+            
+            // Клик по прогресс-бару
+            progressBar.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const clickPosition = (e.clientX - rect.left) / rect.width;
+                currentTime = clickPosition * totalTime;
+                const progressPercent = (currentTime / totalTime) * 100;
+                if (progress) progress.style.width = `${progressPercent}%`;
+                
+                // Обновляем отображение времени
+                const currentMinutes = Math.floor(currentTime / 60);
+                const currentSeconds = Math.floor(currentTime % 60);
+                const totalMinutes = Math.floor(totalTime / 60);
+                const totalSeconds = Math.floor(totalTime % 60);
+                
+                if (timeDisplay) {
+                    timeDisplay.textContent = 
+                        `${currentMinutes}:${currentSeconds.toString().padStart(2, '0')} / ` +
+                        `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
+                }
+            });
+            
+            // Контроль громкости
+            if (volumeSlider) {
+                volumeSlider.addEventListener('input', function() {
+                    // В реальном приложении здесь был бы контроль громкости аудио
+                    console.log('Громкость установлена на:', this.value + '%');
+                });
+            }
+        }
+
+        // Инициализация модального окна
+        function initModal() {
+            const exhibitModal = document.getElementById('exhibitModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const exhibitForm = document.getElementById('exhibitForm');
+            
+            if (closeModalBtn && exhibitModal) {
+                closeModalBtn.addEventListener('click', function() {
+                    exhibitModal.classList.remove('active');
+                });
+                
+                exhibitModal.addEventListener('click', function(e) {
+                    if(e.target === exhibitModal) {
+                        exhibitModal.classList.remove('active');
+                    }
+                });
+            }
+            
+            if (exhibitForm) {
+                exhibitForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const exhibitName = document.getElementById('exhibitName').value;
+                    const exhibitDescription = document.getElementById('exhibitDescription').value;
+                    const exhibitRoom = document.getElementById('exhibitRoom').value;
+                    const addAudioNow = document.getElementById('addAudioNow').checked;
+                    
+                    const newExhibit = {
+                        id: nextExhibitId++,
+                        name: exhibitName,
+                        description: exhibitDescription,
+                        room: exhibitRoom,
+                        audio: addAudioNow ? {
+                            url: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3",
+                            duration: 180,
+                            title: "Аудиогид",
+                            hasAudio: true
+                        } : null
+                    };
+                    
+                    exhibits.push(newExhibit);
+                    updateExhibitList();
+                    updateMobileRoutePreview();
+                    addExhibitToCanvas(newExhibit);
+                    
+                    exhibitModal.classList.remove('active');
+                    exhibitForm.reset();
+                    
+                    alert('Экспонат успешно добавлен!');
+                });
+            }
+        }
+
+        // Загрузка демо-экспонатов
+        function loadDemoExhibits() {
+            updateExhibitList();
+        }
+
+        // Обновление списка экспонатов
+        function updateExhibitList() {
+            const exhibitList = document.getElementById('exhibitList');
+            if (!exhibitList) return;
+            
+            exhibitList.innerHTML = '';
+            
+            exhibits.forEach(exhibit => {
+                const exhibitItem = document.createElement('div');
+                exhibitItem.className = 'exhibit-item';
+                
+                const hasAudio = exhibit.audio && exhibit.audio.hasAudio;
+                const audioIcon = hasAudio ? '<i class="fas fa-volume-up" style="color: var(--success); margin-left: 5px;"></i>' : '';
+                
+                exhibitItem.innerHTML = `
+                    <h4>${exhibit.name} ${audioIcon}</h4>
+                    <p>${exhibit.description.substring(0, 50)}...</p>
+                    <div class="exhibit-actions">
+                        <button class="exhibit-btn edit-btn" data-id="${exhibit.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${!hasAudio ? `
+                        <button class="exhibit-btn" style="background-color: var(--primary); color: white;" data-id="${exhibit.id}" data-action="add-audio">
+                            <i class="fas fa-headphones"></i>
+                        </button>
+                        ` : ''}
+                        <button class="exhibit-btn delete-btn" data-id="${exhibit.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                exhibitList.appendChild(exhibitItem);
+            });
+            
+            // Обработчики кнопок редактирования
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const exhibitId = parseInt(this.getAttribute('data-id'));
+                    editExhibit(exhibitId);
+                });
+            });
+            
+            // Обработчики кнопок удаления
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const exhibitId = parseInt(this.getAttribute('data-id'));
+                    if (confirm('Удалить этот экспонат?')) {
+                        deleteExhibit(exhibitId);
+                    }
+                });
+            });
+        }
+
+        // Редактирование экспоната
+        function editExhibit(exhibitId) {
+            const exhibit = exhibits.find(e => e.id === exhibitId);
+            if (exhibit) {
+                document.getElementById('exhibitName').value = exhibit.name;
+                document.getElementById('exhibitDescription').value = exhibit.description;
+                document.getElementById('exhibitRoom').value = exhibit.room;
+                document.getElementById('addAudioNow').checked = !!(exhibit.audio && exhibit.audio.hasAudio);
+                
+                // Меняем текст кнопки
+                const submitBtn = document.querySelector('#exhibitForm button[type="submit"]');
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Сохранить изменения';
+                
+                // Удаляем старый обработчик
+                const form = document.getElementById('exhibitForm');
+                const newForm = form.cloneNode(true);
+                form.parentNode.replaceChild(newForm, form);
+                
+                // Добавляем новый обработчик для сохранения изменений
+                newForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const exhibitName = document.getElementById('exhibitName').value;
+                    const exhibitDescription = document.getElementById('exhibitDescription').value;
+                    const exhibitRoom = document.getElementById('exhibitRoom').value;
+                    const addAudioNow = document.getElementById('addAudioNow').checked;
+                    
+                    exhibit.name = exhibitName;
+                    exhibit.description = exhibitDescription;
+                    exhibit.room = exhibitRoom;
+                    
+                    if (addAudioNow && !exhibit.audio) {
+                        exhibit.audio = {
+                            url: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3",
+                            duration: 180,
+                            title: "Аудиогид",
+                            hasAudio: true
+                        };
+                    } else if (!addAudioNow && exhibit.audio) {
+                        exhibit.audio = null;
+                    }
+                    
+                    updateExhibitList();
+                    updateMobileRoutePreview();
+                    updateExhibitOnCanvas(exhibit);
+                    
+                    document.getElementById('exhibitModal').classList.remove('active');
+                    newForm.reset();
+                    
+                    // Восстанавливаем кнопку
+                    const submitBtn = document.querySelector('#exhibitForm button[type="submit"]');
+                    submitBtn.innerHTML = '<i class="fas fa-plus"></i> Добавить экспонат';
+                    
+                    alert('Изменения сохранены!');
+                });
+                
+                document.getElementById('exhibitModal').classList.add('active');
+            }
+        }
+
+        // Удаление экспоната
+        function deleteExhibit(exhibitId) {
+            exhibits = exhibits.filter(e => e.id !== exhibitId);
+            updateExhibitList();
+            updateMobileRoutePreview();
+            removeExhibitFromCanvas(exhibitId);
+            alert('Экспонат удален!');
+        }
+
+        // Открытие модального окна
+        function openExhibitModal() {
+            // Сброс формы
+            document.getElementById('exhibitForm').reset();
+            const submitBtn = document.querySelector('#exhibitForm button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-plus"></i> Добавить экспонат';
+            
+            document.getElementById('exhibitModal').classList.add('active');
+        }
+
+        // Генерация QR-кода
+        function generateQRCode() {
+            const qrcodeContainer = document.getElementById('qrcode');
+            if (!qrcodeContainer) return;
+            
+            // Очищаем контейнер
+            qrcodeContainer.innerHTML = '';
+            
+            // Генерируем новый QR-код
+            new QRCode(qrcodeContainer, {
+                text: museumUrl,
+                width: 200,
+                height: 200,
+                colorDark: "#2A5C8A",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // Обновление предпросмотра мобильного маршрута
+        function updateMobileRoutePreview() {
+            const mobileRoutePreview = document.getElementById('mobileRoutePreview');
+            if (!mobileRoutePreview) return;
+            
+            mobileRoutePreview.innerHTML = '';
+            
+            if (exhibits.length === 0) {
+                mobileRoutePreview.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--gray);">
+                        <i class="fas fa-landmark" style="font-size: 3rem; margin-bottom: 20px; display: block;"></i>
+                        <h3>Пока нет экспонатов</h3>
+                        <p>Добавьте экспонаты в конструкторе, чтобы увидеть маршрут здесь</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Группируем экспонаты по залам
+            const rooms = {};
+            exhibits.forEach(exhibit => {
+                if (!rooms[exhibit.room]) {
+                    rooms[exhibit.room] = [];
+                }
+                rooms[exhibit.room].push(exhibit);
+            });
+            
+            let stepNumber = 1;
+            
+            // Создаем маршрут для каждого зала
+            for (const roomName in rooms) {
+                const roomExhibits = rooms[roomName];
+                
+                // Заголовок зала
+                const roomHeader = document.createElement('div');
+                roomHeader.style.marginBottom = '20px';
+                roomHeader.innerHTML = `
+                    <h3 style="color: var(--primary); margin-bottom: 10px;">
+                        <i class="fas fa-door-open"></i> ${roomName}
+                    </h3>
+                `;
+                mobileRoutePreview.appendChild(roomHeader);
+                
+                // Экспонаты в зале
+                roomExhibits.forEach(exhibit => {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.className = 'route-step';
+                    
+                    const hasAudio = exhibit.audio && exhibit.audio.hasAudio;
+                    
+                    stepDiv.innerHTML = `
+                        <div class="step-number">${stepNumber++}</div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="margin: 0 0 5px 0;">${exhibit.name}</h4>
+                            <p style="font-size: 0.9rem; margin: 0; color: var(--gray);">${exhibit.description}</p>
+                        </div>
+                        ${hasAudio ? `
+                        <button class="step-audio" data-id="${exhibit.id}">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        ` : `
+                        <div class="step-audio" style="background-color: #ddd; cursor: default;">
+                            <i class="fas fa-volume-mute"></i>
+                        </div>
+                        `}
+                    `;
+                    
+                    mobileRoutePreview.appendChild(stepDiv);
+                });
+            }
+            
+            // Добавляем обработчики для кнопок аудио
+            document.querySelectorAll('.step-audio').forEach(btn => {
+                if (!btn.style.backgroundColor || btn.style.backgroundColor !== '#ddd') {
+                    btn.addEventListener('click', function() {
+                        const exhibitId = parseInt(this.getAttribute('data-id'));
+                        const exhibit = exhibits.find(e => e.id === exhibitId);
+                        
+                        if (exhibit && exhibit.audio) {
+                            // В реальном приложении здесь было бы воспроизведение аудио
+                            this.classList.toggle('playing');
+                            const icon = this.querySelector('i');
+                            
+                            if (this.classList.contains('playing')) {
+                                icon.classList.remove('fa-play');
+                                icon.classList.add('fa-pause');
+                                alert(`Воспроизведение аудио: ${exhibit.name}\n\n(В демо-режиме аудио не воспроизводится)`);
+                            } else {
+                                icon.classList.remove('fa-pause');
+                                icon.classList.add('fa-play');
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        // Создание демо-музея на холсте
+        function createDemoMuseum() {
+            const canvas = document.getElementById('museumCanvas');
+            if (!canvas) return;
+            
+            // Очищаем холст
+            canvas.innerHTML = '';
+            
+            // Создаем залы на основе уникальных комнат
+            const rooms = [...new Set(exhibits.map(e => e.room))];
+            const roomPositions = [
+                { top: 50, left: 50 },
+                { top: 50, left: 350 },
+                { top: 250, left: 50 }
+            ];
+            
+            rooms.forEach((room, index) => {
+                if (index < roomPositions.length) {
+                    const roomDiv = document.createElement('div');
+                    roomDiv.className = 'museum-room';
+                    roomDiv.style.top = `${roomPositions[index].top}px`;
+                    roomDiv.style.left = `${roomPositions[index].left}px`;
+                    roomDiv.innerHTML = `<div class="room-title">${room}</div>`;
+                    
+                    // Делаем зал перетаскиваемым
+                    makeDraggable(roomDiv);
+                    
+                    canvas.appendChild(roomDiv);
+                }
+            });
+            
+            // Добавляем точки экспонатов
+            exhibits.forEach((exhibit, index) => {
+                addExhibitToCanvas(exhibit, index);
+            });
+        }
+
+        // Добавление экспоната на холст
+        function addExhibitToCanvas(exhibit, index = 0) {
+            const canvas = document.getElementById('museumCanvas');
+            if (!canvas) return;
+            
+            const point = document.createElement('div');
+            point.className = 'exhibit-point';
+            point.setAttribute('data-id', exhibit.id);
+            
+            // Позиционируем точки в разных местах
+            const positions = [
+                { top: 100, left: 100 },
+                { top: 100, left: 200 },
+                { top: 200, left: 150 },
+                { top: 150, left: 250 },
+                { top: 250, left: 100 }
+            ];
+            
+            const pos = positions[index % positions.length];
+            point.style.top = `${pos.top}px`;
+            point.style.left = `${pos.left}px`;
+            
+            point.innerHTML = exhibit.audio && exhibit.audio.hasAudio ? 
+                '<i class="fas fa-volume-up"></i>' : 
+                `<span>${exhibit.id}</span>`;
+            
+            // Добавляем всплывающую подсказку
+            point.title = exhibit.name;
+            
+            // Обработчик клика
+            point.addEventListener('click', function() {
+                alert(`Экспонат: ${exhibit.name}\n\n${exhibit.description}\n\n${exhibit.audio ? 'Есть аудиогид' : 'Нет аудиогида'}`);
+            });
+            
+            // Делаем перетаскиваемым
+            makeDraggable(point);
+            
+            canvas.appendChild(point);
+        }
+
+        // Обновление экспоната на холсте
+        function updateExhibitOnCanvas(exhibit) {
+            const point = document.querySelector(`.exhibit-point[data-id="${exhibit.id}"]`);
+            if (point) {
+                point.innerHTML = exhibit.audio && exhibit.audio.hasAudio ? 
+                    '<i class="fas fa-volume-up"></i>' : 
+                    `<span>${exhibit.id}</span>`;
+                point.title = exhibit.name;
+            }
+        }
+
+        // Удаление экспоната с холста
+        function removeExhibitFromCanvas(exhibitId) {
+            const point = document.querySelector(`.exhibit-point[data-id="${exhibitId}"]`);
+            if (point) {
+                point.remove();
+            }
+        }
+
+        // Создание перетаскиваемого элемента
+        function makeDraggable(element) {
+            let isDragging = false;
+            let offsetX, offsetY;
+            
+            element.addEventListener('mousedown', startDrag);
+            
+            function startDrag(e) {
+                isDragging = true;
+                offsetX = e.clientX - element.offsetLeft;
+                offsetY = e.clientY - element.offsetTop;
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+                
+                element.style.zIndex = '1000';
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                const canvas = document.getElementById('museumCanvas');
+                const canvasRect = canvas.getBoundingClientRect();
+                
+                let newX = e.clientX - offsetX;
+                let newY = e.clientY - offsetY;
+                
+                // Ограничиваем перемещение в пределах холста
+                newX = Math.max(0, Math.min(newX, canvasRect.width - element.offsetWidth));
+                newY = Math.max(0, Math.min(newY, canvasRect.height - element.offsetHeight));
+                
+                element.style.left = newX + 'px';
+                element.style.top = newY + 'px';
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                element.style.zIndex = '';
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+            }
+        }
+
+        // Добавление нового зала
+        function addNewRoom() {
+            const canvas = document.getElementById('museumCanvas');
+            if (!canvas) return;
+            
+            const roomCount = document.querySelectorAll('.museum-room').length;
+            const newRoom = document.createElement('div');
+            newRoom.className = 'museum-room';
+            
+            // Позиция нового зала
+            const positions = [
+                { top: 50, left: 50 },
+                { top: 50, left: 350 },
+                { top: 250, left: 50 },
+                { top: 250, left: 350 }
+            ];
+            
+            const pos = positions[roomCount % positions.length];
+            newRoom.style.top = `${pos.top}px`;
+            newRoom.style.left = `${pos.left}px`;
+            newRoom.innerHTML = `<div class="room-title">Новый зал ${roomCount + 1}</div>`;
+            
+            // Делаем зал редактируемым
+            const roomTitle = newRoom.querySelector('.room-title');
+            roomTitle.addEventListener('dblclick', function() {
+                const newName = prompt('Введите новое название зала:', roomTitle.textContent);
+                if (newName && newName.trim() !== '') {
+                    roomTitle.textContent = newName;
+                }
+            });
+            
+            makeDraggable(newRoom);
+            canvas.appendChild(newRoom);
+            
+            alert('Новый зал добавлен! Дважды кликните по названию, чтобы изменить его.');
+        }
+    </script>
+</body>
+</html>
